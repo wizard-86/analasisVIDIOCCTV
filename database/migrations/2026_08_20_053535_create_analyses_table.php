@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
-        Schema::create('user_analyses', function (Blueprint $table) {
+        Schema::create('analyses', function (Blueprint $table) {
             $table->id();
             $table->string('incident_code');
             $table->string('video_name');
@@ -20,6 +20,6 @@ return new class extends Migration {
     }
 
     public function down(): void {
-        Schema::dropIfExists('user_analyses');
+        Schema::dropIfExists('analyses');
     }
 };
