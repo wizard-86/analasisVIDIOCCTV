@@ -24,17 +24,10 @@
                 <a href="{{ route('guest.hasil') }}" class="flex items-center space-x-3 p-3 rounded-lg font-medium {{ request()->routeIs('guest.hasil') ? 'bg-emerald-100 text-emerald-700' : 'hover:bg-gray-100' }}">
                     <i class="fa-solid fa-shield-virus"></i> <span>Hasil Analisis</span>
                 </a>
-                <a href="{{ route('guest.riwayat') }}" class="flex items-center space-x-3 p-3 rounded-lg font-medium {{ request()->routeIs('guest.riwayat') ? 'bg-emerald-100 text-emerald-700' : 'hover:bg-gray-100' }}">
-                    <i class="fa-solid fa-clock-rotate-left"></i> <span>Riwayat Analisis</span>
-                </a>
             </nav>
         </div>
 
-        <div class="pt-4 border-t border-gray-200">
-            <a href="{{ route('login') }}" class="flex items-center space-x-3 text-emerald-700 font-semibold text-xs hover:underline">
-                <i class="fa-solid fa-right-to-bracket"></i> <span>Login Akun</span>
-            </a>
-        </div>
+      
     </aside>
 
     <!-- Main Content Wrapper -->

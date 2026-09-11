@@ -49,12 +49,6 @@ class GuestController extends Controller {
         $analysis = Analysis::latest()->first();
         return view('guest.hasil', compact('analysis'));
     }
-
-    public function riwayatAnalisis() {
-        $analyses = Analysis::all();
-        return view('guest.riwayat', compact('analyses'));
-    }
-
     public function verifikasiUlang() {
         return redirect()->route('guest.hasil')->with('success', 'Hasil analisis berhasil diverifikasi ulang!');
     }

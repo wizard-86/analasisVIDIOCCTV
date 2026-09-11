@@ -16,7 +16,6 @@ Route::post('/beranda/upload', [GuestController::class, 'storeUpload'])->name('g
 Route::get('/hasil-analisis', [GuestController::class, 'hasilAnalisis'])->name('guest.hasil');
 Route::post('/hasil-analisis/verifikasi', [GuestController::class, 'verifikasiUlang'])->name('guest.verifikasi');
 Route::get('/hasil-analisis/download', [GuestController::class, 'downloadLaporan'])->name('guest.download.laporan');
-Route::get('/riwayat-analisis', [GuestController::class, 'riwayatAnalisis'])->name('guest.riwayat');
 
 // Rute Menu Tiga Titik Guest (Bantuan, Setelan, Tentang)
 Route::get('/bantuan', [GuestController::class, 'bantuan'])->name('guest.bantuan');
