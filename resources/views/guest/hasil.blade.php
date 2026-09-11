@@ -1,5 +1,8 @@
 @extends('layouts.app')
 @section('content')
+<!-- Tambahkan CDN Chart.js di bagian atas atau di layout utama Anda -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <div class="space-y-6 max-w-7xl mx-auto">
     <!-- Header Title -->
     <div class="flex justify-between items-center mb-2">
@@ -11,25 +14,14 @@
     @if(isset($analysis))
         <!-- KONDISI 1: JIKA SUDAH ADA VIDEO DIANALISIS -->
         <div class="grid grid-cols-3 gap-6 items-start">
-            <!-- Kolom Kiri: Galeri Frame Kejadian & Distribusi (Span 2) -->
+            
+            <!-- Kolom Kiri: Diagram Timeline, Distribusi, & Top 3 Frame (Span 2) -->
             <div class="col-span-2 space-y-6">
-                <!-- Galeri Frame Kejadian -->
+                <!-- Diagram Batang (Timeline Analisis) -->
                 <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-                    <h3 class="font-bold text-gray-900 text-sm mb-4">Galeri Frame Kejadian</h3>
-                    <div class="grid grid-cols-4 gap-4">
-                        @foreach([['00:12', 'Shoplifting', '96%', true], ['00:12', 'Shoplifting', '92%', true], ['00:14', 'Normal', '99%', false], ['00:15', 'Normal', '98%', false], ['00:16', 'Normal', '95%', false], ['00:17', 'Shoplifting', '88%', true], ['00:18', 'Shoplifting', '95%', true]] as $frame)
-                        <div class="border border-gray-200 rounded-xl overflow-hidden relative shadow-sm bg-gray-900">
-                            <div class="h-28 flex items-center justify-center text-white text-xs opacity-80">Frame</div>
-                            <span class="absolute top-1.5 left-1.5 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded font-mono">{{ $frame[0] }}</span>
-                            <div class="{{ $frame[3] ? 'bg-red-600' : 'bg-emerald-700' }} text-white text-[10px] px-2 py-1 flex justify-between font-bold">
-                                <span>{{ $frame[1] }}</span>
-                                <span>{{ $frame[2] }}</span>
-                            </div>
-                        </div>
-                        @endforeach
-                        <div class="border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center text-gray-400 text-xs font-semibold h-28 bg-gray-50/50">
-                            +9 Frames
-                        </div>
+                    <h3 class="font-bold text-gray-900 text-sm mb-4">Grafik Timeline Analisis Insiden</h3>
+                    <div class="relative h-72 w-full">
+                        <canvas id="timelineChart"></canvas>
                     </div>
                 </div>
 
@@ -43,15 +35,47 @@
                     <div class="flex items-center gap-6 border-l pl-8">
                         <div class="text-right">
                             <span class="text-xs text-gray-400 block font-medium">Persentase Akurasi</span>
-                            <span class="text-3xl font-bold text-emerald-700 tracking-tight">{{ $analysis->accuracy ?? 96 }}%</span>
-                            <span class="text-[10px] text-emerald-600 font-medium block">Confidence Score</span>
+                            <span class="text-3xl font-bold text-emerald-700 tracking-tight">{{ $analysis->accuracy ?? 97 }}%</span>
+                            <span class="text-[10px] text-emerald-600 font-medium block">Bobot Attention</span>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Galeri Frame Kejadian (3 Frame dengan Bobot Tertinggi) -->
+                <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                    <h3 class="font-bold text-gray-900 text-sm mb-4">Top 3 Frame - Bobot Attention</h3>
+                    <div class="grid grid-cols-3 gap-4">
+                        @foreach([
+                            ['14', 'Normal', '99%', false], 
+                            ['15', 'Normal', '98%', false], 
+                            ['12', 'Shoplifting', '96%', true]
+                        ] as $frame)
+                        <div class="border border-gray-200 rounded-xl overflow-hidden relative shadow-sm bg-gray-900">
+                            <div class="h-28 flex items-center justify-center text-white text-xs opacity-80">Visual Frame {{ $frame[0] }}</div>
+                            <span class="absolute top-2 left-2 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded font-mono">Frame {{ $frame[0] }}</span>
+                            <div class="{{ $frame[3] ? 'bg-red-600' : 'bg-emerald-700' }} text-white text-xs px-2.5 py-1.5 flex justify-between font-bold">
+                                <span>{{ $frame[1] }}</span>
+                                <span>{{ $frame[2] }}</span>
+                            </div>
+                        </div>
+                        @endforeach
                     </div>
                 </div>
             </div>
 
-            <!-- Kolom Kanan: Prediksi, Detail & Tombol Aksi (Span 1) -->
+            <!-- Kolom Kanan: Video Validasi, Prediksi & Tombol Aksi (Span 1) -->
             <div class="space-y-6">
+                <!-- Video Player untuk Validasi (Menggunakan variabel $analysis->video_name) -->
+                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+                    <h3 class="font-bold text-gray-900 text-sm mb-3">Rekaman Video Asli</h3>
+                    <div class="rounded-xl overflow-hidden border border-gray-200 bg-black shadow-sm flex items-center justify-center">
+                        <video class="w-full max-h-[220px] object-contain" controls preload="metadata">
+                            <source src="{{ asset('storage/' . $analysis->video_name) }}" type="video/mp4">
+                            Browser Anda tidak mendukung pemutaran video.
+                        </video>
+                    </div>
+                </div>
+
                 <!-- Prediksi Jenis Kejahatan -->
                 <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
                     <span class="text-xs font-bold text-gray-400 block mb-3 flex items-center gap-1.5">
@@ -59,19 +83,9 @@
                     </span>
                     <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
                         <span class="text-red-700 font-extrabold text-2xl tracking-wide">
-                            {{ $analysis->status ?? 'Shoplifting' }} <span class="text-red-600">{{ $analysis->accuracy ?? 96 }}%</span>
+                            {{ $analysis->status ?? 'Shoplifting' }} <span class="text-red-600">{{ $analysis->accuracy ?? 97 }}%</span>
                         </span>
                     </div>
-                </div>
-
-                <!-- Detail Insiden -->
-                <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm text-sm space-y-3">
-                    <h3 class="font-bold text-gray-900 text-sm border-b pb-3">Detail Insiden</h3>
-                    <div class="flex justify-between text-xs py-1"><span class="text-gray-400 font-medium">Waktu Deteksi:</span> <span class="font-bold text-gray-800">{{ $analysis->created_at->format('d M Y, H:i') }} WIB</span></div>
-                    <div class="flex justify-between text-xs py-1"><span class="text-gray-400 font-medium">Lokasi:</span> <span class="font-bold text-gray-800">{{ $analysis->location }}</span></div>
-                    <div class="flex justify-between text-xs py-1"><span class="text-gray-400 font-medium">ID Kamera:</span> <span class="font-bold text-gray-800">{{ $analysis->camera_id }}</span></div>
-                    <div class="flex justify-between text-xs py-1"><span class="text-gray-400 font-medium">Status Sistem:</span> <span class="font-bold text-emerald-700">Otomatis Ditandai</span></div>
-                    <div class="flex justify-between text-xs py-1 pt-2 border-t"><span class="text-gray-400 font-medium">Total Frames Dianalisis:</span> <span class="font-bold text-gray-800">{{ $analysis->total_frames }} Frames</span></div>
                 </div>
 
                 <!-- Tombol Aksi Guest -->
@@ -107,4 +121,77 @@
         </div>
     @endif
 </div>
+
+@if(isset($analysis))
+<!-- Inisialisasi Chart.js untuk Diagram Batang -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('timelineChart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Frame 12', 'Frame 13', 'Frame 14', 'Frame 15', 'Frame 16', 'Frame 17', 'Frame 18'],
+                datasets: [{
+                    label: 'Bobot Attention (%)',
+                    data: [96, 92, 99, 98, 95, 88, 95], 
+                    backgroundColor: [
+                        '#ef4444', 
+                        '#ef4444', 
+                        '#047857', 
+                        '#047857', 
+                        '#047857', 
+                        '#ef4444', 
+                        '#ef4444'  
+                    ],
+                    borderRadius: 4,
+                    barPercentage: 0.6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false 
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let value = context.parsed.y;
+                                let status = context.raw < 98 && context.dataIndex !== 2 && context.dataIndex !== 3 && context.dataIndex !== 4 ? 'Shoplifting' : 'Normal';
+                                
+                                if(context.element.options.backgroundColor === '#ef4444') {
+                                    status = 'Shoplifting';
+                                } else {
+                                    status = 'Normal';
+                                }
+                                return `${status} (Bobot: ${value}%)`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Bobot Attention (%)',
+                            font: { size: 10 }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Frame',
+                            font: { size: 10 }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+@endif
 @endsection

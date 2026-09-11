@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Analysis;
 
-class GuestController extends Controller {
+class GuestController extends Controller
+{
 
-    public function beranda() {
+    public function beranda()
+    {
         // Hitung total video dari database (0 jika belum ada)
         $totalVideo = Analysis::count();
 
@@ -24,50 +26,70 @@ class GuestController extends Controller {
         return view('guest.beranda', compact('totalVideo', 'storageUsed', 'storageLimit', 'storagePercent', 'serverStatus', 'analyses'));
     }
 
-    public function storeUpload(Request $request) {
+    public function storeUpload(Request $request)
+    {
         $request->validate([
-            'video' => 'required|mimes:mp4,avi,mkv|max:512000',
+            'video' => [
+                'required',
+                'file',
+                'mimetypes:video/mp4',
+                'mimes:mp4',
+                'max:51200', // 50MB dalam Kilobyte
+            ],
+        ], [
+            'video.required' => 'File video wajib diunggah.',
+            'video.file' => 'File yang diunggah harus berupa berkas yang valid.',
+            'video.mimes' => 'Format file harus berjenis: mp4.',
+            'video.mimetypes' => 'Format file harus berjenis: mp4.',
+            'video.max' => 'Ukuran file video maksimal adalah 50 MB.',
         ]);
 
         $videoPath = $request->file('video')->store('videos', 'public');
         $namaFile = $request->input('nama_file') ?? $request->file('video')->getClientOriginalName();
 
         $analysis = Analysis::create([
-            'incident_code' => 'GST-' . rand(1000, 9999),
-            'video_path' => $videoPath,
-            'status' => 'Shoplifting',
-            'accuracy' => rand(92, 99),
-            'location' => $namaFile,
-            'camera_id' => 'CAM-GUEST-01',
-            'total_frames' => 16,
+            'incident_code' => 'INC-' . rand(1000, 9999),
+            'video_name'    => $videoPath,   // ganti dari video_path
+            'status'        => 'Shoplifting',
+            'accuracy'      => rand(92, 99),
+            'location'      => $namaFile,
+            'camera_id'     => 'CAM-01-MTR',
+            // hapus user_id & total_frames karena tidak ada di tabel
         ]);
 
         return redirect()->route('guest.hasil')->with('success', 'Video berhasil diunggah dan dianalisis!');
     }
 
-    public function hasilAnalisis() {
+    public function hasilAnalisis()
+    {
         $analysis = Analysis::latest()->first();
         return view('guest.hasil', compact('analysis'));
     }
-    public function verifikasiUlang() {
+
+    public function verifikasiUlang()
+    {
         return redirect()->route('guest.hasil')->with('success', 'Hasil analisis berhasil diverifikasi ulang!');
     }
 
-    public function downloadLaporan() {
+    public function downloadLaporan()
+    {
         $analysis = Analysis::latest()->first();
         return view('guest.laporan', compact('analysis'));
     }
 
     // Halaman Menu Tiga Titik (Bantuan, Setelan, Tentang)
-    public function tentang() {
+    public function tentang()
+    {
         return view('guest.tentang');
     }
 
-    public function bantuan() {
+    public function bantuan()
+    {
         return view('guest.bantuan');
     }
 
-    public function setelan() {
+    public function setelan()
+    {
         return view('guest.setelan');
     }
 }
