@@ -17,11 +17,6 @@ Route::get('/hasil-analisis', [GuestController::class, 'hasilAnalisis'])->name('
 Route::post('/hasil-analisis/verifikasi', [GuestController::class, 'verifikasiUlang'])->name('guest.verifikasi');
 Route::get('/hasil-analisis/download', [GuestController::class, 'downloadLaporan'])->name('guest.download.laporan');
 
-// Rute Menu Tiga Titik Guest (Bantuan, Setelan, Tentang)
-Route::get('/bantuan', [GuestController::class, 'bantuan'])->name('guest.bantuan');
-Route::get('/setelan', [GuestController::class, 'setelan'])->name('guest.setelan');
-Route::get('/tentang', [GuestController::class, 'tentang'])->name('guest.tentang');
-
 /*
 |--------------------------------------------------------------------------
 | Authentication Routes (Login & Register)
@@ -34,25 +29,24 @@ Route::post('/register', [AuthController::class, 'register'])->name('register.st
 
 /*
 |--------------------------------------------------------------------------
-| User Panel Routes (Aman & Tidak Berubah)
+| User Panel Routes
 |--------------------------------------------------------------------------
 */
 Route::prefix('user')->group(function () {
-    Route::get('/dashboard', [UserController::class, 'dashboard'])->name('user.dashboard');
-    Route::get('/upload', [UserController::class, 'upload'])->name('user.upload');
-    Route::post('/upload', [UserController::class, 'storeUpload'])->name('user.store');
+    Route::get('/riwayat', [UserController::class, 'riwayat'])->name('user.riwayat');
+    Route::get('/beranda', [UserController::class, 'beranda'])->name('user.beranda');
+    Route::post('/beranda', [UserController::class, 'storeUpload'])->name('user.store');
     Route::get('/hasil/{id?}', [UserController::class, 'hasil'])->name('user.hasil');
     Route::post('/hasil/{id}/verifikasi', [UserController::class, 'verifikasi'])->name('user.verifikasi');
     Route::get('/abaikan', [UserController::class, 'abaikan'])->name('user.abaikan');
 
-    // Fitur Tambahan Dashboard User
+    // Fitur Tambahan Panel User
     Route::get('/search', [UserController::class, 'search'])->name('user.search');
     Route::get('/video-tersimpan', [UserController::class, 'videoTersimpan'])->name('user.video.tersimpan');
     Route::get('/analisis-selesai', [UserController::class, 'analisisSelesai'])->name('user.analisis.selesai');
     Route::get('/penyimpanan', [UserController::class, 'penyimpanan'])->name('user.penyimpanan');
     Route::delete('/penyimpanan/{id}', [UserController::class, 'hapusVideo'])->name('user.penyimpanan.hapus');
 
-    // Navigasi & Setelan User
     Route::get('/notifikasi', [UserController::class, 'notifikasi'])->name('user.notifikasi');
     Route::get('/setelan', [UserController::class, 'setelan'])->name('user.setelan');
     Route::post('/setelan', [UserController::class, 'updateSetelan'])->name('user.setelan.update');

@@ -8,16 +8,16 @@ use App\Models\Analysis;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller {
-    public function dashboard() {
+    public function riwayat() {
         $totalVideo = Analysis::count();
         $analisisSelesai = Analysis::count();
-        $analyses = Analysis::latest()->take(3)->get();
+        $analyses = Analysis::latest()->get();
 
-        return view('user.dashboard', compact('totalVideo', 'analisisSelesai', 'analyses'));
+        return view('user.riwayat', compact('totalVideo', 'analisisSelesai', 'analyses'));
     }
 
-    public function upload() {
-        return view('user.upload');
+    public function beranda() {
+        return view('user.beranda');
     }
 
     public function storeUpload(Request $request) {
@@ -28,18 +28,43 @@ class UserController extends Controller {
         $videoPath = $request->file('video')->store('videos', 'public');
         $namaFile = $request->input('nama_file') ?? $request->file('video')->getClientOriginalName();
 
+        // Ambil pilihan target frame dari session user (default 32 jika belum diset)
+        $selectedFrames = (int) session('target_frames', 32);
+
         $analysis = Analysis::create([
             'user_id' => Auth::id() ?? 1,
             'incident_code' => 'INC-' . rand(1000, 9999),
-            'video_path' => $videoPath,
+            'video_name' => $videoPath,
             'status' => 'Shoplifting',
             'accuracy' => rand(92, 99),
             'location' => $namaFile,
             'camera_id' => 'CAM-01-MTR',
-            'total_frames' => 16,
+            'total_frames' => $selectedFrames,
         ]);
 
         return redirect()->route('user.hasil', $analysis->id)->with('success', 'Video berhasil diunggah dan dianalisis!');
+    }
+
+    public function hasil($id = null) {
+        // Cek apakah class Analysis ada, lalu ambil data
+        $analysis = class_exists(Analysis::class)
+            ? ($id ? Analysis::find($id) : Analysis::latest()->first())
+            : null;
+
+        // Ambil target frames dengan aman dari database atau session (default 32)
+        $targetFrames = 32;
+
+        if ($analysis) {
+            if (isset($analysis->total_frames) && !empty($analysis->total_frames)) {
+                $targetFrames = (int) $analysis->total_frames;
+            } else {
+                $targetFrames = (int) session('target_frames', 32);
+            }
+        } else {
+            $targetFrames = (int) session('target_frames', 32);
+        }
+
+        return view('user.hasil', compact('analysis', 'targetFrames'));
     }
 
     public function search(Request $request) {
@@ -74,17 +99,12 @@ class UserController extends Controller {
         return redirect()->route('user.penyimpanan')->with('success', 'Video berhasil dihapus dari penyimpanan.');
     }
 
-    public function hasil($id = null) {
-        $analysis = $id ? Analysis::find($id) : Analysis::latest()->first();
-        return view('user.hasil', compact('analysis'));
-    }
-
     public function verifikasi($id) {
         return redirect()->route('user.hasil', $id)->with('success', 'Insiden berhasil diverifikasi ulang.');
     }
 
     public function abaikan() {
-        return redirect()->route('user.upload');
+        return redirect()->route('user.beranda');
     }
 
     public function logout() {
@@ -92,30 +112,26 @@ class UserController extends Controller {
     }
 
     public function notifikasi() {
-        $analyses = Analysis::latest()->take(5)->get(); // Ambil 5 aktivitas terakhir
+        $analyses = Analysis::latest()->take(5)->get();
         return view('user.notifikasi', compact('analyses'));
     }
 
-
-    // Simpan Pengaturan Sistem
-    // Simpan Pengaturan Sistem
     public function updateSetelan(Request $request) {
-        // Simpan pilihan tema, volume, dan preferensi ke dalam session
+        // Simpan preferensi baru ke dalam session
         session([
             'app_theme' => $request->input('theme', 'light'),
-            'app_volume' => $request->input('volume', '70'),
+            'target_frames' => $request->input('target_frames', '32'),
             'auto_analysis' => $request->has('auto_analysis'),
             'face_blurring' => $request->has('face_blurring'),
         ]);
 
-        return redirect()->route('user.setelan')->with('success', 'Pengaturan sistem berhasil diperbarui!');
+        return redirect()->route('user.setelan')->with('success', 'Pengaturan sistem dan parameter AI berhasil diperbarui!');
     }
 
     public function setelan() {
         return view('user.setelan');
     }
 
-  /// Halaman Profil User
     public function profil() {
         $user = Auth::user();
         return view('user.profil', compact('user'));

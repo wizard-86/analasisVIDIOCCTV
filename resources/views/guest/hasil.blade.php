@@ -14,13 +14,13 @@
     @if(isset($analysis))
         <!-- KONDISI 1: JIKA SUDAH ADA VIDEO DIANALISIS -->
         <div class="grid grid-cols-3 gap-6 items-start">
-            
+
             <!-- Kolom Kiri: Diagram Timeline, Distribusi, & Top 3 Frame (Span 2) -->
             <div class="col-span-2 space-y-6">
                 <!-- Diagram Batang (Timeline Analisis) -->
                 <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-                    <h3 class="font-bold text-gray-900 text-sm mb-4">Grafik Timeline Analisis Insiden</h3>
-                    <div class="relative h-72 w-full">
+                    <h3 class="font-bold text-gray-900 text-sm mb-4">Grafik Timeline Analisis Insiden (32 Frame)</h3>
+                    <div class="relative h-80 w-full"> <!-- Tinggi sedikit ditambah agar ada ruang untuk teks miring -->
                         <canvas id="timelineChart"></canvas>
                     </div>
                 </div>
@@ -29,8 +29,8 @@
                 <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex items-center justify-between">
                     <div>
                         <h3 class="font-bold text-gray-900 text-sm mb-3">Analisis Distribusi Frame</h3>
-                        <p class="text-xs text-red-600 font-medium mb-1">● Shoplifting: 4 Frames (25%)</p>
-                        <p class="text-xs text-emerald-700 font-medium">● Normal: 12 Frames (75%)</p>
+                        <p class="text-xs text-red-600 font-medium mb-1">● Shoplifting: 8 Frames (25%)</p>
+                        <p class="text-xs text-emerald-700 font-medium">● Normal: 24 Frames (75%)</p>
                     </div>
                     <div class="flex items-center gap-6 border-l pl-8">
                         <div class="text-right">
@@ -41,13 +41,13 @@
                     </div>
                 </div>
 
-                <!-- Galeri Frame Kejadian (3 Frame dengan Bobot Tertinggi) -->
+                <!-- Galeri Frame Kejadian (Top 3 Frame dengan Bobot Tertinggi) -->
                 <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
                     <h3 class="font-bold text-gray-900 text-sm mb-4">Top 3 Frame - Bobot Attention</h3>
                     <div class="grid grid-cols-3 gap-4">
                         @foreach([
-                            ['14', 'Normal', '99%', false], 
-                            ['15', 'Normal', '98%', false], 
+                            ['14', 'Normal', '99%', false],
+                            ['15', 'Normal', '98%', false],
                             ['12', 'Shoplifting', '96%', true]
                         ] as $frame)
                         <div class="border border-gray-200 rounded-xl overflow-hidden relative shadow-sm bg-gray-900">
@@ -65,7 +65,7 @@
 
             <!-- Kolom Kanan: Video Validasi, Prediksi & Tombol Aksi (Span 1) -->
             <div class="space-y-6">
-                <!-- Video Player untuk Validasi (Menggunakan variabel $analysis->video_name) -->
+                <!-- Video Player untuk Validasi -->
                 <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
                     <h3 class="font-bold text-gray-900 text-sm mb-3">Rekaman Video Asli</h3>
                     <div class="rounded-xl overflow-hidden border border-gray-200 bg-black shadow-sm flex items-center justify-center">
@@ -104,7 +104,7 @@
             </div>
         </div>
     @else
-        <!-- KONDISI 2: EMPTY STATE (JIKA BELUM ADA VIDEO DIUNGGAH SAMA SEKALI) -->
+        <!-- KONDISI 2: EMPTY STATE -->
         <div class="bg-white border border-gray-200 rounded-2xl p-16 text-center space-y-4 shadow-sm">
             <div class="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-3xl mx-auto shadow-sm">
                 <i class="fa-solid fa-video-slash"></i>
@@ -123,29 +123,39 @@
 </div>
 
 @if(isset($analysis))
-<!-- Inisialisasi Chart.js untuk Diagram Batang -->
+<!-- Inisialisasi Chart.js untuk Diagram Batang 32 Frame Tampil Semua -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const ctx = document.getElementById('timelineChart').getContext('2d');
-        
+
+        const labels32 = [];
+        const dataScores32 = [];
+        const backgroundColors32 = [];
+
+        for (let i = 1; i <= 32; i++) {
+            labels32.push('Frame ' + i);
+
+            let score = Math.floor(Math.random() * (99 - 75 + 1)) + 75;
+            dataScores32.push(score);
+
+            if (score < 90) {
+                backgroundColors32.push('#ef4444');
+            } else {
+                backgroundColors32.push('#047857');
+            }
+        }
+
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Frame 12', 'Frame 13', 'Frame 14', 'Frame 15', 'Frame 16', 'Frame 17', 'Frame 18'],
+                labels: labels32,
                 datasets: [{
                     label: 'Bobot Attention (%)',
-                    data: [96, 92, 99, 98, 95, 88, 95], 
-                    backgroundColor: [
-                        '#ef4444', 
-                        '#ef4444', 
-                        '#047857', 
-                        '#047857', 
-                        '#047857', 
-                        '#ef4444', 
-                        '#ef4444'  
-                    ],
-                    borderRadius: 4,
-                    barPercentage: 0.6
+                    data: dataScores32,
+                    backgroundColor: backgroundColors32,
+                    borderRadius: 3,
+                    barPercentage: 0.8,
+                    categoryPercentage: 0.9
                 }]
             },
             options: {
@@ -153,19 +163,13 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        display: false 
+                        display: false
                     },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
                                 let value = context.parsed.y;
-                                let status = context.raw < 98 && context.dataIndex !== 2 && context.dataIndex !== 3 && context.dataIndex !== 4 ? 'Shoplifting' : 'Normal';
-                                
-                                if(context.element.options.backgroundColor === '#ef4444') {
-                                    status = 'Shoplifting';
-                                } else {
-                                    status = 'Normal';
-                                }
+                                let status = value < 90 ? 'Shoplifting' : 'Normal';
                                 return `${status} (Bobot: ${value}%)`;
                             }
                         }
@@ -182,9 +186,15 @@
                         }
                     },
                     x: {
+                        ticks: {
+                            autoSkip: false,  // Tampilkan SEMUA label, jangan ada yang disembunyikan
+                            maxRotation: 45,  // Putar teks 45 derajat agar muat dan rapi
+                            minRotation: 45,
+                            font: { size: 9 }
+                        },
                         title: {
                             display: true,
-                            text: 'Frame',
+                            text: 'Frame (Total 32 Frame)',
                             font: { size: 10 }
                         }
                     }

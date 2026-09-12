@@ -17,15 +17,17 @@
                 <h1 class="text-xl font-bold text-emerald-600">Aegis Vision</h1>
                 <p class="text-xs text-gray-400">User Panel</p>
             </div>
+
+            <!-- Urutan Menu Diperbaiki: Beranda -> Hasil Analisis -> Riwayat Analisis -->
             <nav class="space-y-2">
-                <a href="{{ route('user.dashboard') }}" class="flex items-center space-x-3 p-3 rounded-lg font-medium {{ request()->routeIs('user.dashboard') ? 'bg-emerald-100 text-emerald-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700' }}">
-                    <i class="fa-solid fa-house"></i> <span>Ringkasan</span>
-                </a>
-                <a href="{{ route('user.upload') }}" class="flex items-center space-x-3 p-3 rounded-lg font-medium {{ request()->routeIs('user.upload') ? 'bg-emerald-100 text-emerald-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700' }}">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> <span>Unggah Video</span>
+                <a href="{{ route('user.beranda') }}" class="flex items-center space-x-3 p-3 rounded-lg font-medium {{ request()->routeIs('user.beranda') ? 'bg-emerald-100 text-emerald-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700' }}">
+                    <i class="fa-solid fa-house"></i> <span>Beranda</span>
                 </a>
                 <a href="{{ route('user.hasil') }}" class="flex items-center space-x-3 p-3 rounded-lg font-medium {{ request()->routeIs('user.hasil') ? 'bg-emerald-100 text-emerald-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700' }}">
                     <i class="fa-solid fa-shield-virus"></i> <span>Hasil Analisis</span>
+                </a>
+                <a href="{{ route('user.riwayat') }}" class="flex items-center space-x-3 p-3 rounded-lg font-medium {{ request()->routeIs('user.riwayat') ? 'bg-emerald-100 text-emerald-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700' }}">
+                    <i class="fa-solid fa-clock-rotate-left"></i> <span>Riwayat Analisis</span>
                 </a>
             </nav>
         </div>
@@ -53,7 +55,7 @@
                     <i class="fa-solid fa-gear text-lg"></i>
                 </a>
 
-               <!-- Profil Dinamis (Email & Inisial Otomatis dari Database) -->
+                <!-- Profil Dinamis -->
                 <a href="{{ route('user.profil') }}" class="flex items-center gap-2 pl-4 border-l dark:border-gray-700 hover:opacity-80 transition cursor-pointer">
                     <div class="w-8 h-8 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold text-xs">
                         {{ strtoupper(substr(Auth::user()->email ?? 'U', 0, 1)) }}

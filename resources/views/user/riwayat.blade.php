@@ -2,17 +2,9 @@
 @section('content')
 <div class="space-y-6 max-w-7xl mx-auto">
     <div>
-        <h2 class="text-2xl font-bold text-gray-900">Selamat Datang, User</h2>
-        <p class="text-xs text-gray-500 mt-0.5">Berikut adalah ringkasan aktivitas analisis video Anda hari ini.</p>
+        <h2 class="text-2xl font-bold text-gray-900">Riwayat Analisis[cite: 4]</h2>
+        <p class="text-xs text-gray-500 mt-0.5">Berikut adalah daftar rekaman dan riwayat aktivitas analisis video Anda.</p>
     </div>
-
-    <!-- Kolom Pencarian Aktif -->
-    <form action="{{ route('user.search') }}" method="GET" class="relative">
-        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
-            <i class="fa-solid fa-magnifying-glass"></i>
-        </span>
-        <input type="text" name="q" placeholder="Cari berdasarkan kode insiden, lokasi, atau status..." class="w-full bg-white border border-gray-200 rounded-2xl py-3 pl-11 pr-4 text-xs focus:outline-none focus:border-emerald-600 shadow-sm">
-    </form>
 
     <!-- 3 Kartu Statistik Dinamis dari Database -->
     <div class="grid grid-cols-3 gap-6">
@@ -42,7 +34,7 @@
             </div>
         </a>
 
-        <!-- Kartu Sisa Kuota Unggah (Dihitung dari sisa kapasitas) -->
+        <!-- Kartu Sisa Kuota Unggah -->
         <a href="{{ route('user.penyimpanan') }}" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:border-emerald-600 transition block">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl">
@@ -56,14 +48,13 @@
         </a>
     </div>
 
-    <!-- Hasil Analisis Saya & Tombol Lihat Semua -->
+    <!-- Daftar Hasil Analisis / Riwayat -->
     <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
         <div class="flex justify-between items-center">
-            <h3 class="font-bold text-gray-900 text-sm">Hasil Analisis Saya</h3>
-            <a href="{{ route('user.analisis.selesai') }}" class="text-xs font-semibold text-emerald-700 hover:underline">Lihat Semua</a>
+            <h3 class="font-bold text-gray-900 text-sm">Semua Riwayat Analisis</h3>
+            <a href="{{ route('user.beranda') }}" class="text-xs font-semibold text-emerald-700 hover:underline">+ Unggah Video Baru</a>
         </div>
 
-        <!-- Grid Preview Aktivitas dari Database -->
         @if(isset($analyses) && $analyses->count() > 0)
             <div class="grid grid-cols-3 gap-4">
                 @foreach($analyses as $item)
@@ -80,10 +71,9 @@
                 @endforeach
             </div>
         @else
-            <!-- Tampilan Kosong Jika Belum Ada Data -->
             <div class="py-10 text-center space-y-2 border border-dashed rounded-xl bg-gray-50">
                 <p class="text-xs text-gray-400">Belum ada riwayat analisis video yang tercatat di database.</p>
-                <a href="{{ route('user.upload') }}" class="inline-block text-xs font-semibold text-emerald-700 hover:underline">Mulai Unggah Video Sekarang</a>
+                <a href="{{ route('user.beranda') }}" class="inline-block text-xs font-semibold text-emerald-700 hover:underline">Mulai Unggah Video Sekarang</a>
             </div>
         @endif
     </div>

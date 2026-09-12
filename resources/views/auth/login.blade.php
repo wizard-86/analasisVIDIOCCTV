@@ -33,6 +33,12 @@
                 <input type="password" name="password" placeholder="••••••••" required class="w-full border rounded-lg p-2.5 text-sm focus:outline-none focus:border-emerald-600">
             </div>
             <button type="submit" class="w-full bg-emerald-700 text-white py-2.5 rounded-lg font-medium hover:bg-emerald-800 transition">Masuk ke Sistem</button>
+            <div class="mt-4 text-center">
+<div class="mt-4">
+    <a href="{{ route('guest.beranda') }}" class="w-full border border-gray-300 text-gray-700 py-2.5 rounded-xl text-xs font-semibold hover:bg-gray-50 transition flex items-center justify-center shadow-sm block text-center">
+        Masuk sebagai Guest
+    </a>
+</div>
         </form>
 
         <p class="text-xs text-gray-500 mt-4">Belum punya akun? <a href="{{ route('register') }}" class="text-emerald-700 font-medium">Daftar sekarang</a></p>

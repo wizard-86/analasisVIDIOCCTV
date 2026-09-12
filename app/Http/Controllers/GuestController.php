@@ -7,20 +7,13 @@ use App\Models\Analysis;
 
 class GuestController extends Controller
 {
-
     public function beranda()
     {
-        // Hitung total video dari database (0 jika belum ada)
         $totalVideo = Analysis::count();
-
-        // Kapasitas dihitung dinamis (misal 1 video = 0.1 GB), dibatasi maks 5 GB
         $storageUsed = min($totalVideo * 0.1, 5.0);
-        $storageLimit = 5.0; // Batas kuota 5 GB
+        $storageLimit = 5.0;
         $storagePercent = ($storageUsed / $storageLimit) * 100;
-
-        // Tentukan status server berdasarkan kapasitas
         $serverStatus = $storageUsed >= 4.5 ? 'Penuh (Hampir Batas)' : 'Optimal';
-
         $analyses = Analysis::latest()->take(3)->get();
 
         return view('guest.beranda', compact('totalVideo', 'storageUsed', 'storageLimit', 'storagePercent', 'serverStatus', 'analyses'));
@@ -34,7 +27,7 @@ class GuestController extends Controller
                 'file',
                 'mimetypes:video/mp4',
                 'mimes:mp4',
-                'max:51200', // 50MB dalam Kilobyte
+                'max:51200',
             ],
         ], [
             'video.required' => 'File video wajib diunggah.',
@@ -49,12 +42,11 @@ class GuestController extends Controller
 
         $analysis = Analysis::create([
             'incident_code' => 'INC-' . rand(1000, 9999),
-            'video_name'    => $videoPath,   // ganti dari video_path
+            'video_name'    => $videoPath,
             'status'        => 'Shoplifting',
             'accuracy'      => rand(92, 99),
             'location'      => $namaFile,
             'camera_id'     => 'CAM-01-MTR',
-            // hapus user_id & total_frames karena tidak ada di tabel
         ]);
 
         return redirect()->route('guest.hasil')->with('success', 'Video berhasil diunggah dan dianalisis!');
@@ -75,21 +67,5 @@ class GuestController extends Controller
     {
         $analysis = Analysis::latest()->first();
         return view('guest.laporan', compact('analysis'));
-    }
-
-    // Halaman Menu Tiga Titik (Bantuan, Setelan, Tentang)
-    public function tentang()
-    {
-        return view('guest.tentang');
-    }
-
-    public function bantuan()
-    {
-        return view('guest.bantuan');
-    }
-
-    public function setelan()
-    {
-        return view('guest.setelan');
     }
 }

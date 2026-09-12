@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller {
-    // Tampilkan halaman login[cite: 9]
+    // Tampilkan halaman login
     public function showLogin() {
         return view('auth.login');
     }
@@ -47,8 +47,8 @@ class AuthController extends Controller {
         // Mencocokkan kredensial dengan data di database
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            // Jika berhasil, arahkan ke dashboard user
-            return redirect()->route('user.dashboard');
+            // Jika berhasil, arahkan ke halaman riwayat user
+            return redirect()->route('user.riwayat');
         }
 
         // Jika gagal, kembalikan ke halaman login dengan pesan kesalahan
