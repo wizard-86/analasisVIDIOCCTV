@@ -116,16 +116,15 @@ class UserController extends Controller {
         return view('user.notifikasi', compact('analyses'));
     }
 
-    public function updateSetelan(Request $request) {
-        // Simpan preferensi baru ke dalam session
+  public function updateSetelan(Request $request) {
+        // Simpan preferensi baru ke dalam session (tanpa target_frames)
         session([
             'app_theme' => $request->input('theme', 'light'),
-            'target_frames' => $request->input('target_frames', '32'),
             'auto_analysis' => $request->has('auto_analysis'),
             'face_blurring' => $request->has('face_blurring'),
         ]);
 
-        return redirect()->route('user.setelan')->with('success', 'Pengaturan sistem dan parameter AI berhasil diperbarui!');
+        return redirect()->route('user.setelan')->with('success', 'Pengaturan sistem berhasil diperbarui!');
     }
 
     public function setelan() {

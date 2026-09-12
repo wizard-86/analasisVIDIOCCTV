@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aegis Vision - Guest Panel</title>
+    <title> CCTV shoplifting - Guest Panel</title>
     <!-- Tailwind CSS & FontAwesome -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,7 +14,7 @@
     <aside class="w-64 bg-white border-r border-gray-200 flex flex-col justify-between p-6">
         <div>
             <div class="mb-8">
-                <h1 class="text-xl font-bold text-emerald-600">Aegis Vision</h1>
+                <h1 class="text-xl font-bold text-emerald-600"> CCTV shoplifting </h1>
                 <p class="text-xs text-gray-400">Guest Panel</p>
             </div>
             <nav class="space-y-2">

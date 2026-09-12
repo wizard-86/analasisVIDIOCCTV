@@ -2,7 +2,7 @@
 @section('content')
 <div class="space-y-6 max-w-7xl mx-auto">
     <div>
-        <h2 class="text-2xl font-bold text-gray-900">Riwayat Analisis[cite: 4]</h2>
+        <h2 class="text-2xl font-bold text-gray-900">Riwayat Analisis </h2>
         <p class="text-xs text-gray-500 mt-0.5">Berikut adalah daftar rekaman dan riwayat aktivitas analisis video Anda.</p>
     </div>
 

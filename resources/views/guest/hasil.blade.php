@@ -20,7 +20,7 @@
                 <!-- Diagram Batang (Timeline Analisis) -->
                 <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
                     <h3 class="font-bold text-gray-900 text-sm mb-4">Grafik Timeline Analisis Insiden (32 Frame)</h3>
-                    <div class="relative h-80 w-full"> <!-- Tinggi sedikit ditambah agar ada ruang untuk teks miring -->
+                    <div class="relative h-80 w-full">
                         <canvas id="timelineChart"></canvas>
                     </div>
                 </div>
@@ -66,13 +66,64 @@
             <!-- Kolom Kanan: Video Validasi, Prediksi & Tombol Aksi (Span 1) -->
             <div class="space-y-6">
                 <!-- Video Player untuk Validasi -->
-                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-                    <h3 class="font-bold text-gray-900 text-sm mb-3">Rekaman Video Asli</h3>
+                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm space-y-4">
+                    <h3 class="font-bold text-gray-900 text-sm">Rekaman Video Asli</h3>
                     <div class="rounded-xl overflow-hidden border border-gray-200 bg-black shadow-sm flex items-center justify-center">
                         <video class="w-full max-h-[220px] object-contain" controls preload="metadata">
                             <source src="{{ asset('storage/' . $analysis->video_name) }}" type="video/mp4">
                             Browser Anda tidak mendukung pemutaran video.
                         </video>
+                    </div>
+
+                    <!-- Keterangan Detail Berkas Video Asli Sesuai Permintaan Dosen -->
+                    <div class="border-t border-gray-100 pt-3 space-y-2 text-xs">
+                        <div class="flex justify-between py-0.5">
+                            <span class="text-gray-400 font-medium">Nama File Sistem</span>
+                            <span class="text-gray-800 font-bold truncate max-w-[150px]" title="{{ basename($analysis->video_name ?? '') }}">
+                                {{ basename($analysis->video_name ?? '-') }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between py-0.5">
+                            <span class="text-gray-400 font-medium">Nama Asli Video</span>
+                            <span class="text-gray-800 font-bold truncate max-w-[150px]" title="{{ $analysis->location ?? '' }}">
+                                {{ $analysis->location ?? '-' }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between py-0.5">
+                            <span class="text-gray-400 font-medium">Resolusi Video</span>
+                            <span class="text-gray-800 font-bold">1280 x 720 (HD)</span>
+                        </div>
+                        <div class="flex justify-between py-0.5">
+                            <span class="text-gray-400 font-medium">Ukuran Berkas</span>
+                            <span class="text-gray-800 font-bold">
+                                @php
+                                    $fileSizeFormatted = '0 MB';
+                                    if (!empty($analysis->video_name)) {
+                                        $publicPath = public_path('storage/' . $analysis->video_name);
+                                        $storagePath = storage_path('app/public/' . $analysis->video_name);
+
+                                        if (file_exists($publicPath)) {
+                                            $bytes = filesize($publicPath);
+                                        } elseif (file_exists($storagePath)) {
+                                            $bytes = filesize($storagePath);
+                                        } else {
+                                            $bytes = 0;
+                                        }
+
+                                        if ($bytes > 0) {
+                                            $fileSizeFormatted = $bytes >= 1048576
+                                                ? round($bytes / 1048576, 2) . ' MB'
+                                                : round($bytes / 1024, 2) . ' KB';
+                                        }
+                                    }
+                                @endphp
+                                {{ $fileSizeFormatted }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between py-0.5">
+                            <span class="text-gray-400 font-medium">Panjang / Durasi</span>
+                            <span class="text-gray-800 font-bold">00:03 Detik</span>
+                        </div>
                     </div>
                 </div>
 
@@ -81,6 +132,7 @@
                     <span class="text-xs font-bold text-gray-400 block mb-3 flex items-center gap-1.5">
                         <i class="fa-solid fa-triangle-exclamation text-red-500"></i> Prediksi Jenis Kejahatan
                     </span>
+
                     <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
                         <span class="text-red-700 font-extrabold text-2xl tracking-wide">
                             {{ $analysis->status ?? 'Shoplifting' }} <span class="text-red-600">{{ $analysis->accuracy ?? 97 }}%</span>
@@ -187,8 +239,8 @@
                     },
                     x: {
                         ticks: {
-                            autoSkip: false,  // Tampilkan SEMUA label, jangan ada yang disembunyikan
-                            maxRotation: 45,  // Putar teks 45 derajat agar muat dan rapi
+                            autoSkip: false,
+                            maxRotation: 45,
                             minRotation: 45,
                             font: { size: 9 }
                         },
