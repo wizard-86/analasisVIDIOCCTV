@@ -8,7 +8,7 @@
     </div>
 
     <!-- Form Bungkus Keseluruhan -->
-    <form action="{{ route('guest.store') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-3 gap-6 items-start">
+    <form id="uploadForm" action="{{ route('guest.store') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-3 gap-6 items-start">
         @csrf
         <!-- Kolom Kiri: Area Unggah Video (Span 2) -->
         <div class="col-span-2 bg-white border border-gray-200 rounded-2xl p-8 shadow-sm space-y-6">
@@ -19,7 +19,7 @@
 
             <!-- Kotak Drag & Drop dengan Tombol Kustom -->
             <div class="border-2 border-dashed border-gray-300 rounded-2xl p-6 md:p-10 text-center bg-gray-50 hover:bg-gray-100 transition relative flex flex-col items-center justify-center min-h-[300px]">
-                
+
                 <!-- Tampilan Default (Belum Ada File) -->
                 <div id="defaultUploadState" class="flex flex-col items-center justify-center">
                     <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-xl mb-3">
@@ -58,45 +58,53 @@
             </button>
         </div>
 
-        
-            <!-- Ringkasan Hari Ini -->
-            <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-3 text-center">
-                <span class="text-xs text-gray-400 font-medium uppercase tracking-wider block text-left">Ringkasan Hari Ini</span>
-                <div class="py-4 flex flex-col items-center justify-center">
-                    <div class="text-gray-300 text-3xl mb-2"><i class="fa-regular fa-folder-open"></i></div>
-                    <h4 class="font-bold text-gray-800 text-sm">Belum Ada Analisis</h4>
-                    <p class="text-[11px] text-gray-400 mt-0.5">Unggah video untuk mulai deteksi ancaman.</p>
-                </div>
+        <!-- Ringkasan Hari Ini -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-3 text-center">
+            <span class="text-xs text-gray-400 font-medium uppercase tracking-wider block text-left">Ringkasan Hari Ini</span>
+            <div class="py-4 flex flex-col items-center justify-center">
+                <div class="text-gray-300 text-3xl mb-2"><i class="fa-regular fa-folder-open"></i></div>
+                <h4 class="font-bold text-gray-800 text-sm">Belum Ada Analisis</h4>
+                <p class="text-[11px] text-gray-400 mt-0.5">Unggah video untuk mulai deteksi ancaman.</p>
             </div>
         </div>
     </form>
 </div>
 
-<!-- Skrip JavaScript untuk Validasi Klien & Preview Video -->
+<!-- Modal Loading Overlay Animasi Spinner Lingkaran Muternya Saja -->
+<div id="loadingModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div class="bg-white border border-gray-200 rounded-3xl p-8 max-w-sm w-full mx-4 text-center space-y-4 shadow-2xl">
+        <!-- Ikon Spinner Lingkaran Berputar -->
+        <div class="w-16 h-16 text-emerald-600 rounded-2xl flex items-center justify-center text-3xl mx-auto">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+        </div>
+        <div class="space-y-1">
+            <h3 class="font-bold text-gray-900 text-sm">Sedang Memproses AI...</h3>
+        </div>
+    </div>
+</div>
+
+<!-- Skrip JavaScript untuk Validasi Klien, Preview, & Simulasi Loading AI -->
 <script>
     function updateFileName(input) {
         const display = document.getElementById('fileNameDisplay');
         const submitBtn = document.getElementById('submitBtn');
-        
-        // Element untuk Preview Video
+
         const defaultState = document.getElementById('defaultUploadState');
         const previewState = document.getElementById('videoPreviewState');
         const videoPlayer = document.getElementById('videoPlayer');
-        
+
         if (input.files && input.files[0]) {
             const file = input.files[0];
-            const fileSize = file.size; // dalam bytes
+            const fileSize = file.size;
             const fileName = file.name;
             const fileExt = fileName.split('.').pop().toLowerCase();
 
-            // Validasi Tipe File (hanya mp4)
             if (fileExt !== 'mp4') {
                 alert('Format file harus berjenis: MP4.');
                 resetUploader(input, display, submitBtn, defaultState, previewState, videoPlayer);
                 return;
             }
 
-            // Validasi Ukuran File (Maksimal 50MB)
             const maxSizeBytes = 50 * 1024 * 1024;
             if (fileSize > maxSizeBytes) {
                 alert('Ukuran file video maksimal adalah 50 MB.');
@@ -104,18 +112,13 @@
                 return;
             }
 
-            // --- JIKA VALIDASI LOLOS --- //
-            
-            // 1. Buat URL sementara untuk file video dan set ke player
             const fileURL = URL.createObjectURL(file);
             videoPlayer.src = fileURL;
 
-            // 2. Ganti Tampilan UI (Sembunyikan ikon cloud, tampilkan player)
             defaultState.classList.add('hidden');
             previewState.classList.remove('hidden');
             previewState.classList.add('flex');
 
-            // 3. Update teks nama file & aktifkan tombol submit
             display.textContent = "File terpilih: " + fileName;
             display.classList.remove('italic', 'text-gray-400');
             display.classList.add('text-emerald-700', 'font-bold');
@@ -123,22 +126,18 @@
             submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
 
         } else {
-            // Jika dialog dibatalkan (tidak memilih file apa-apa)
             resetUploader(input, display, submitBtn, defaultState, previewState, videoPlayer);
         }
     }
 
-    // Fungsi Pembantu untuk mengembalikan tampilan ke awal jika terjadi error/batal
     function resetUploader(input, display, submitBtn, defaultState, previewState, videoPlayer) {
-        input.value = ''; // Reset input
-        
-        // Bersihkan memori dan hapus source video
+        input.value = '';
+
         if (videoPlayer.src) {
             URL.revokeObjectURL(videoPlayer.src);
             videoPlayer.src = '';
         }
 
-        // Kembalikan UI ke awal
         defaultState.classList.remove('hidden');
         previewState.classList.add('hidden');
         previewState.classList.remove('flex');
@@ -149,5 +148,27 @@
         submitBtn.disabled = true;
         submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
     }
+
+    // Intersepsi Form Submit untuk Menampilkan Animasi Loading Spinner Mutar
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const modal = document.getElementById('loadingModal');
+        const statusText = document.getElementById('loadingStatusText');
+
+        modal.classList.remove('hidden');
+
+        setTimeout(() => {
+            statusText.innerText = "Menganalisis bobot attention frame CCTV...";
+        }, 1200);
+
+        setTimeout(() => {
+            statusText.innerText = "Menyusun grafik timeline dan laporan insiden...";
+        }, 2500);
+
+        setTimeout(() => {
+            e.target.submit();
+        }, 3200);
+    });
 </script>
 @endsection
